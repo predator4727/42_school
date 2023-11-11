@@ -1,0 +1,18 @@
+Copy file from virtual machine to my pc *Note* do this on your pc terminal not in the virtual machine
+
+#	scp -P 4242 aderugo@localhost:/home/aderugo/Inception.tar .
+
+Copy from my pc to virtual machine *Note* do this on your pc terminal not in the virtual machine
+
+#	scp -P 4242 file.txt aderugo@localhost:/home/aderugo/.
+
+ 
+Tar files -> 	tar -cvf archive.tar filename
+			tar -xvf archive.tar
+
+Or use zip and unzip but install sudo apt-get install unzip
+
+
+
+
+
