@@ -1,0 +1,82 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   list_operation.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: numussan <numussan@student.42abudhabi.a    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/12/02 02:25:11 by numussan          #+#    #+#             */
+/*   Updated: 2023/01/23 13:45:18 by numussan         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../minishell.h"
+
+//add new node to list
+void	push(t_env **head_ref, char *key, char *val)
+{
+	t_env	*new_node;
+
+	new_node = (t_env *) malloc(sizeof(t_env));
+	new_node->key = ft_strdup(key);
+	new_node->val = NULL;
+	if (val != NULL)
+		new_node->val = ft_strdup(val);
+	new_node->next = (*head_ref);
+	(*head_ref) = new_node;
+}
+
+//free node memory and remove it
+// free(temp->key);
+	// free(temp->val);
+void	delete_head(t_env **head)
+{
+	t_env	*temp;
+
+	temp = *head;
+	*head = (*head)->next;
+	free(temp->key);
+	if (temp->val != NULL)
+		free(temp->val);
+	free(temp);
+}
+
+//removes provided noded
+void	delete_node(t_env *node)
+{
+	t_env	*temp;
+
+	temp = node->next;
+	node->next = temp->next;
+	free(temp->key);
+	if (temp->val != NULL)
+		free(temp->val);
+	free(temp);
+}
+
+int	count_nodes(t_env **head)
+{
+	t_env	*temp;
+	int		count;
+
+	temp = *head;
+	count = 0;
+	while (temp != NULL)
+	{
+		count++;
+		temp = temp->next;
+	}
+	return (count);
+}
+
+t_cmd	*find_last(t_cmd **head)
+{
+	t_cmd	*temp;
+
+	temp = *head;
+	if (*head == NULL)
+		return (NULL);
+	while (temp->next != NULL)
+		temp = temp->next;
+	return (temp);
+}

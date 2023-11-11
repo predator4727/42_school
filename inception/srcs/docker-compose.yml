@@ -1,0 +1,102 @@
+version: '3'
+
+services:
+  nginx:
+   # Build the Docker image from the Nginx Dockerfile
+    image: nginx
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: requirements/nginx/Dockerfile
+      args:
+        CERT_PATH: ${CERT_PATH}
+        KEY_PATH: ${KEY_PATH}
+        CERT: ${CERT}
+        KEY: ${KEY}
+        DOMAIN_NAME: ${DOMAIN_NAME}
+        NGINX_PORT: ${NGINX_PORT}
+        WORDPRESS_PORT: ${WORDPRESS_PORT}
+    container_name: nginx
+    depends_on:
+      - wordpress
+    # port on the host to port in the container
+    ports:
+      - "${NGINX_PORT}:${NGINX_PORT}"
+    # Attach to the inception network
+    networks:
+      - inception
+    # Mount local directories as volumes in the container
+    volumes:
+      - wp-volume:/var/www/
+    restart: on-failure
+
+  mariadb:
+    image: mariadb
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: requirements/mariadb/Dockerfile
+      args:
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASS: ${DB_PASS}
+        DB_ROOT: ${DB_ROOT}
+        MARIADB_PORT: ${MARIADB_PORT}
+    container_name: mariadb
+    networks:
+      - inception
+    volumes:
+      - db-volume:/var/lib/mysql
+    restart: on-failure
+
+  wordpress:
+    image: wordpress
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: requirements/wordpress/Dockerfile
+      args:
+        DOMAIN_NAME: ${DOMAIN_NAME}
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASS: ${DB_PASS}
+        DB_HOST: ${DB_HOST}
+        WPADUSER: ${WPADUSER}
+        WPADPASS: ${WPADPASS}
+        WPADADDR: ${WPADADDR}
+        WPUSER1: ${WPUSER1}
+        WPUSER1PASS: ${WPUSER1PASS}
+        WPUSER1ADDR: ${WPUSER1ADDR}
+        WORDPRESS_PORT: ${WORDPRESS_PORT}
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    networks:
+      - inception
+    volumes:
+      - wp-volume:/var/www/
+    restart: on-failure
+
+volumes:
+  # wp-volume volume for WordPress files
+  wp-volume:
+    # Set driver options for the volume
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/wordpress
+
+  db-volume:
+    driver_opts:
+      o: bind
+      type: none
+      device: /home/${USER}/data/mariadb
+
+networks:
+  # inception bridge network
+  inception:
+    # Set the network driver to bridge
+    driver: bridge
